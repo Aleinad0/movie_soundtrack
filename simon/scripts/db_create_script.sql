@@ -63,11 +63,11 @@ SELECT ROW_NUMBER() OVER (ORDER BY song_name, artist_name) AS recording_id, song
 INTO recordings
 FROM recordings_temp;
 
--- Add PK to songs
+-- Add PK to recordings
 ALTER TABLE recordings 
 ADD PRIMARY KEY (recording_id);
 
--- Drop table songs_temp
+-- Drop table recordings_temp
 DROP TABLE recordings_temp;
 
 
@@ -141,7 +141,8 @@ OR (a.artist_name IS NULL AND recordings.artist_name IS NULL));
 ALTER TABLE recordings
 DROP COLUMN artist_name;
 
-SELECT * FROM recordings;
+
+-- SELECT * FROM recordings;
 
 -- SELECT * FROM artists;
 
