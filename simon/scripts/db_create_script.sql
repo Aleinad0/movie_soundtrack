@@ -1,8 +1,9 @@
 -- Drop tables
-DROP TABLE IF EXISTS artists;
 DROP TABLE IF EXISTS movies_recordings;
 DROP TABLE IF EXISTS recordings;
 DROP TABLE IF EXISTS recordings_temp;
+DROP TABLE IF EXISTS artists;
+DROP TABLE IF EXISTS artists_temp;
 DROP TABLE IF EXISTS movies;
 DROP TABLE IF EXISTS movies_temp;
 DROP TABLE IF EXISTS original_data;
@@ -103,5 +104,45 @@ AND (o.performed_by = r.artist_name
 OR (o.performed_by IS NULL AND r.artist_name IS NULL))
 ORDER BY r.song_name;*/
 
+
+-- STEP 5
+-- Create table with unique artists
+SELECT DISTINCT artist_name
+INTO artists_temp
+FROM recordings;
+
+-- Create an artist_id based on the artists (into a new table) 
+SELECT ROW_NUMBER() OVER (ORDER BY artist_name) AS artist_id, artist_name
+INTO artists
+FROM artists_temp;
+
+-- Add PK to artists
+ALTER TABLE artists
+ADD PRIMARY KEY (artist_id);
+
+-- Drop table artists_temp
+DROP TABLE artists_temp;
+
+
+-- STEP 6
+-- Create the artist_id column in the recordings table
+ALTER TABLE recordings
+ADD COLUMN artist_id BIGINT REFERENCES artists(artist_id);
+
+-- Popultate recordings(artist_id) based on the artist name
+UPDATE recordings
+SET artist_id = 
+(SELECT a.artist_id
+FROM artists a
+WHERE a.artist_name = recordings.artist_name
+OR (a.artist_name IS NULL AND recordings.artist_name IS NULL));
+
+-- Drop column artist_name from recordings table
+ALTER TABLE recordings
+DROP COLUMN artist_name;
+
+SELECT * FROM recordings;
+
+-- SELECT * FROM artists;
 
 
