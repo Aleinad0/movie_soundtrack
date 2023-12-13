@@ -7,6 +7,8 @@ DROP TABLE IF EXISTS movies;
 DROP TABLE IF EXISTS movies_temp;
 DROP TABLE IF EXISTS original_data;
 
+
+-- STEP 1
 -- Create table for the original data
 CREATE TABLE IF NOT EXISTS original_data(
 	id SERIAL PRIMARY KEY,
@@ -22,6 +24,8 @@ FROM 'C:\projekt_2\soundtrack_proj\movie_soundtrack\simon\data\filtered_movie_so
 DELIMITER ',' 
 CSV HEADER;
 
+
+-- STEP 2
 -- Create table with unique moives
 SELECT DISTINCT movie_name
 INTO movies_temp
@@ -47,50 +51,57 @@ WHERE movies.movie_name = original_data.movie_name;
 DROP TABLE movies_temp;
 
 
+-- STEP 3
 -- Create table with unique recordings
 SELECT DISTINCT song_name, performed_by AS artist_name
 INTO recordings_temp
 FROM original_data;
 
-SELECT * FROM recordings_temp;
-
-
--- KLAR HIT
--- Create a song_id based on the songs (into a new table) 
-SELECT ROW_NUMBER() OVER (ORDER BY song_title) AS id, song_title
-INTO songs
-FROM songs_temp;
+-- Create a recording_id based on the recordings (into a new table) 
+SELECT ROW_NUMBER() OVER (ORDER BY song_name, artist_name) AS recording_id, song_name, artist_name
+INTO recordings
+FROM recordings_temp;
 
 -- Add PK to songs
-ALTER TABLE songs ADD PRIMARY KEY (id);
+ALTER TABLE recordings 
+ADD PRIMARY KEY (recording_id);
 
 -- Drop table songs_temp
-DROP TABLE songs_temp;
+DROP TABLE recordings_temp;
 
--- Create junction table movies_songs
-CREATE TABLE movies_songs(
-	movie_id BIGINT REFERENCES movies(id),
-	song_id BIGINT REFERENCES songs(id),
-	PRIMARY KEY (movie_id, song_id)
+
+-- STEP 4
+-- Create junction table movies_recordings
+CREATE TABLE movies_recordings(
+	movie_id BIGINT REFERENCES movies(movie_id),
+	recording_id BIGINT REFERENCES recordings(recording_id),
+	PRIMARY KEY (movie_id, recording_id)
 );
 
 -- Populate junction table based on original_data
-INSERT INTO movies_songs(movie_id, song_id)
-SELECT m.id AS movie_id, s.id AS song_id
+INSERT INTO movies_recordings(movie_id, recording_id)
+SELECT m.movie_id, r.recording_id
 FROM original_data o
-JOIN movies m ON o.movie_title = m.movie_title
-JOIN songs s ON o.song_title = s.song_title
-ON CONFLICT (movie_id, song_id) DO NOTHING;
+JOIN movies m ON o.movie_name = m.movie_name
+JOIN recordings r ON o.song_name = r.song_name 
+AND (o.performed_by = r.artist_name 
+OR (o.performed_by IS NULL AND r.artist_name IS NULL))
+ON CONFLICT (movie_id, recording_id) DO NOTHING;
 
-
-SELECT m.movie_title, s.song_title
+-- Test SELECT statement
+/*SELECT m.movie_name, r.song_name
 FROM movies m
-JOIN movies_songs ms ON ms.movie_id = m.id
-JOIN songs s ON s.id = ms.song_id;
+JOIN movies_recordings mr ON mr.movie_id = m.movie_id
+JOIN recordings r ON r.recording_id = mr.recording_id
+WHERE m.movie_name = 'The Lion King';*/
+
+/*SELECT m.movie_id, r.recording_id, m.movie_name, r.artist_name, r.song_name 
+FROM original_data o
+JOIN movies m ON o.movie_name = m.movie_name
+JOIN recordings r ON o.song_name = r.song_name 
+AND (o.performed_by = r.artist_name 
+OR (o.performed_by IS NULL AND r.artist_name IS NULL))
+ORDER BY r.song_name;*/
 
 
--- SELECT * FROM songs;
 
--- SELECT * FROM movies;
-
--- SELECT * FROM original_data;
