@@ -141,9 +141,14 @@ OR (a.artist_name IS NULL AND recordings.artist_name IS NULL));
 ALTER TABLE recordings
 DROP COLUMN artist_name;
 
+-- Change the NULL in artists to "Unknown artist"
+UPDATE artists
+SET artist_name = 'Unknown Artist'
+WHERE artist_name IS NULL;
 
 -- SELECT * FROM recordings;
 
 -- SELECT * FROM artists;
+
 
 
