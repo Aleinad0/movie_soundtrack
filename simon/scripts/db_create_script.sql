@@ -74,8 +74,8 @@ DROP TABLE recordings_temp;
 -- STEP 4
 -- Create junction table movies_recordings
 CREATE TABLE movies_recordings(
-	movie_id BIGINT REFERENCES movies(movie_id),
-	recording_id BIGINT REFERENCES recordings(recording_id),
+	movie_id BIGINT REFERENCES movies(movie_id) ON DELETE CASCADE,
+	recording_id BIGINT REFERENCES recordings(recording_id) ON DELETE CASCADE,
 	PRIMARY KEY (movie_id, recording_id)
 );
 
@@ -90,12 +90,6 @@ OR (o.performed_by IS NULL AND r.artist_name IS NULL))
 ON CONFLICT (movie_id, recording_id) DO NOTHING;
 
 -- Test SELECT statement
-/*SELECT m.movie_name, r.song_name
-FROM movies m
-JOIN movies_recordings mr ON mr.movie_id = m.movie_id
-JOIN recordings r ON r.recording_id = mr.recording_id
-WHERE m.movie_name = 'The Lion King';*/
-
 /*SELECT m.movie_id, r.recording_id, m.movie_name, r.artist_name, r.song_name 
 FROM original_data o
 JOIN movies m ON o.movie_name = m.movie_name
@@ -127,7 +121,7 @@ DROP TABLE artists_temp;
 -- STEP 6
 -- Create the artist_id column in the recordings table
 ALTER TABLE recordings
-ADD COLUMN artist_id BIGINT REFERENCES artists(artist_id);
+ADD COLUMN artist_id BIGINT REFERENCES artists(artist_id) ON DELETE CASCADE;
 
 -- Popultate recordings(artist_id) based on the artist name
 UPDATE recordings
@@ -146,9 +140,18 @@ UPDATE artists
 SET artist_name = 'Unknown Artist'
 WHERE artist_name IS NULL;
 
+
+
 -- SELECT * FROM recordings;
 
 -- SELECT * FROM artists;
+
+/*SELECT m.movie_name, r.song_name, a.artist_name
+FROM movies m
+JOIN movies_recordings mr ON mr.movie_id = m.movie_id
+JOIN recordings r ON r.recording_id = mr.recording_id
+JOIN artists a ON a.artist_id = r.artist_id
+WHERE m.movie_name = 'The Lion King';*/
 
 
 
