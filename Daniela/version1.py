@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://your_username:your_password@localhost:5432/movie_soundtrack'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Db241305@localhost:5432/movie_soundtrack'
 # Replace 'your_username' and 'your_password' with your PostgreSQL username and password
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
