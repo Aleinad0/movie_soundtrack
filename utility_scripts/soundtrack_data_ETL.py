@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 
-file_path = Path(__file__).resolve().parents[1] / 'data' / 'sound_track_imdb_top_250_movie_tv_series.csv'
+file_path = Path(__file__).resolve().parents[0] / 'data' / 'sound_track_imdb_top_250_movie_tv_series.csv'
 print(file_path)
 df = pd.read_csv(file_path, delimiter=",", index_col=0)
 
@@ -29,5 +29,5 @@ df_selected.loc[(df_selected.name == 'Persona') & (df_selected.year == 2018), 'n
 df_selected = df_selected.map(lambda x: x.strip() if isinstance(x, str) else x)
 
 # write df_selected to CSV file (without index)
-save_path = Path(__file__).resolve().parents[1] / 'data' / 'filtered_movie_songs_no_idx.csv'
+save_path = Path(__file__).resolve().parents[0] / 'data' / 'filtered_movie_songs_no_idx.csv'
 df_selected.to_csv(save_path, index=False)
