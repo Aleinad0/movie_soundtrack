@@ -99,6 +99,13 @@ SET song_name = RTRIM(song_name);
 
 drop table raw_data;
 
+SELECT movie_name, COUNT(*) AS name_count
+FROM movies
+GROUP BY movie_name
+HAVING COUNT(*) > 1;
+
+
+
 /*SELECT * FROM movies;
 select * from artists;
 select * from recordings;
